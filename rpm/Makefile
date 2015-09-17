@@ -1,17 +1,30 @@
 name=storm-backend-server
 
-tag=master
+tag=develop
+
+ifdef BUILD_TAG
+tag=$(BUILD_TAG)
+endif
 
 # the voms-clients repo on GitHub
 git=https://github.com/italiangrid/storm.git
+
+ifdef BUILD_REPO
+git=$(BUILD_REPO)
+endif
 
 # needed dirs
 source_dir=sources
 rpmbuild_dir=$(shell pwd)/rpmbuild
 
 # spec file and it src
+spec_src=$(name).spec.in
 spec=$(name).spec
 dist=.el6
+
+# determine the pom version and the rpm version
+pom_version=$(shell grep "<version>" $(source_dir)/$(name)/pom.xml | head -1 | sed -e 's/<version>//g' -e 's/<\/version>//g' -e "s/[ \t]*//g")
+rpm_version=$(shell grep "Version:" $(spec) | sed -e "s/Version://g" -e "s/[ \t]*//g")
 
 # settings file for mvn
 mirror_conf_url=https://raw.github.com/italiangrid/build-settings/master/maven/cnaf-mirror-settings.xml
@@ -26,8 +39,6 @@ print-info:
 	@echo
 	@echo
 	@echo "Packaging $(name) fetched from $(git) for tag $(tag)."
-	@echo "Maven settings: $(mvn_settings)"
-	@echo "Jar names: $(jar_names)"
 	@echo
 
 prepare-sources: sanity-checks clean
@@ -39,7 +50,11 @@ prepare-sources: sanity-checks clean
 	cd $(source_dir) && tar -r -f $(name)/$(name).tar $(name)/$(mirror_conf_name) && gzip $(name)/$(name).tar
 	cp $(source_dir)/$(name)/$(name).tar.gz $(source_dir)/$(name).tar.gz
 
-rpm: prepare-sources
+prepare-spec: prepare-sources
+	sed -e 's#@@POM_VERSION@@#$(pom_version)#g' \
+        $(spec_src) > $(spec)
+
+rpm: prepare-spec
 	mkdir -p $(rpmbuild_dir)/BUILD \
 		$(rpmbuild_dir)/RPMS \
 		$(rpmbuild_dir)/SOURCES \
@@ -54,7 +69,7 @@ else
 endif
 
 clean:
-	rm -rf $(source_dir) $(rpmbuild_dir) 
+	rm -rf $(source_dir) $(rpmbuild_dir) $(spec)
 
 sanity-checks:
 ifndef tag
