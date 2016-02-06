@@ -1,0 +1,9 @@
+FROM  italiangrid/pkg.base:centos6
+
+ENV BUILD_NAME storm-backend-server
+ENV BUILD_REPO git://github.com/italiangrid/storm.git
+ENV BUILD_TAG develop
+ENV PKG_REPO git://github.com/italiangrid/pkg.storm-backend.git
+ENV PKG_TAG develop
+
+USER build

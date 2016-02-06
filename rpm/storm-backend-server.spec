@@ -3,10 +3,6 @@
 
 %global release_version 1
 
-%global pom_version @@POM_VERSION@@
-#%global pom_version 1.0.3
-%global mvn_settings -s mirror-settings.xml
-
 %if %{?build_number:1}%{!?build_number:0}
 %define release_ 0.build%{build_number}%{?dist}
 %else
@@ -17,7 +13,7 @@
 %define prefixname storm
 
 Name:    storm-backend-server
-Version: 1.11.9
+Version: 1.11.11
 Release: %{release_}
 Summary: The StoRM backend server
 
@@ -62,7 +58,7 @@ This package contains the StoRM backend server.
 %setup -q -n %{name}
 
 %build
-mvn -s mirror-settings.xml -DskipTests -U clean package
+mvn -DskipTests -U clean package
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -133,6 +129,12 @@ if [ "$1" = "0" ] ; then
 fi;
 
 %changelog
+* Wed Feb 3 2016 Andrea Ceccanti <andrea.ceccanti at cnaf.infn.it> - 1.11.11-0
+- Bumped packaging version for 1.11.11 release.
+
+* Fri Dec 18 2015 Enrico Vianello <enrico.vianello at cnaf.infn.it> - 1.11.10-1
+- Bumped packaging version for 1.11.10 release.
+
 * Wed Jun 3 2015 Andrea Ceccanti <andrea.ceccanti at cnaf.infn.it> - 1.11.9-1
 - Bumped packaging version for 1.11.9 release.
 
